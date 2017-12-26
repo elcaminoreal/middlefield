@@ -2,4 +2,7 @@ import sys
 
 import middlefield
 
-middlefield.run(sys.argv[1:], os.environ)
+if __name__ != '__main__':
+    raise ImportError("module cannot be imported")
+
+middlefield.COMMANDS.run(sys.argv[1:])

@@ -1,3 +1,3 @@
-from middlefield._api import COMMANDS, run, self_build
+from middlefield._api import COMMANDS, self_build
 
-__all__ = ['COMMANDS', 'run', 'self_build']
+__all__ = ['COMMANDS', 'self_build']

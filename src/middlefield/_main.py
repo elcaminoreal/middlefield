@@ -1,3 +1,6 @@
+import functools
+import runpy
+
 import toolz
 
 entrypoint=toolz.compose(lambda x: None,

@@ -14,7 +14,8 @@ setuptools.setup(
     author_email="zadka.moshe@gmail.com",
     packages=setuptools.find_packages(where='src'),
     package_dir={"": "src"},
-    install_requires=['elcaminoreal', 'incremental', 'caparg', 'seashore'],
+    install_requires=['elcaminoreal', 'incremental', 'caparg',
+                      'seashore', 'pex'],
     entry_points=dict(
         gather=["gather=middlefield"],
         console_scripts=["mf=middlefield._main:entrypoint"],

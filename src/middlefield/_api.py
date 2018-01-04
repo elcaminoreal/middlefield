@@ -16,6 +16,10 @@ COMMANDS = elcaminoreal.Commands()
 def executor(_dependencies, _maybe_dependencies):
     return seashore.Executor(seashore.Shell())
 
+@COMMANDS.dependency(name='pex_builder')
+def get_pex_builder(_dependencies, _maybe_dependencies):
+    return pex_builder.PEXBuilder
+
 @contextlib.contextmanager
 def tmpdir():
     ret = tempfile.mkdtemp()
@@ -29,14 +33,14 @@ def tmpdir():
         requirements=cap.option(type=typing.List[str], have_default=True),
         package=cap.option(type=typing.List[str], have_default=True),
         output=cap.option(type=str, required=True)),
-    dependencies=['executor'])
+    dependencies=['executor', 'pex_builder'])
 def self_build(args, dependencies):
     package = list(args['package'])
     package.append(f'middlefield=={middlefield.__version__}')
     requirements = list(args['requirements'])
     output = args['output']
     xctor = dependencies['executor']
-    builder = pex_builder.PEXBuilder()
+    builder = dependencies['pex_builder']()
     builder.set_entry_point('middlefield')
     with tmpdir() as wheelhouse:
         xctor.pip.wheel(*list(package),

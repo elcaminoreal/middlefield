@@ -1,12 +1,22 @@
 import functools
+import os
+import tempfile
 import unittest
 
 import attr
 import middlefield
 import seashore
 
-class MemoryFS(object):
-    pass
+@attr.s(frozen=True)
+class Files(object):
+
+    def putFile(self, fname, content):
+        if not fname.startswith(tempfile.gettempdir()):
+            raise ValueError("tried to create a file outside sandbox",
+                             tempfile.gettempdir(),
+                             fname)
+        with open(fname, 'wb') as fp:
+            fp.write(content)
 
 @attr.s(frozen=True)
 class FakeShell(object):
@@ -16,6 +26,16 @@ class FakeShell(object):
         return attr.evolve(self)
 
     def batch(self, _cmd, *args, **kwargs):
+        if _cmd[:2] == ['pip', 'wheel']:
+            del _cmd[:2]
+            idx = _cmd.index('--wheel-dir')
+            wheel_dir = _cmd[idx+1]
+            del _cmd[idx:idx+2]
+            packages = [pkg.replace('==', '-') + '.whl'
+                        for pkg in _cmd]
+            for pkg in packages:
+                self._fs.putFile(os.path.join(wheel_dir, pkg), b'')
+            return
         raise NotImplementedError(_cmd, args, kwargs)
 
 @attr.s
@@ -38,7 +58,7 @@ class APITest(unittest.TestCase):
         self.assertEquals(graph, {})
 
     def test_self_build(self):
-        fs = MemoryFS()
+        fs = Files()
         shell = FakeShell(fs)
         executor = seashore.Executor(shell)
         builder = functools.partial(FakeBuilder, fs)

@@ -1,0 +1,8 @@
+/dist
+*.egg-info
+/build
+/.eggs
+__pycache__
+*.pyc
+/.python-version
+/.cache

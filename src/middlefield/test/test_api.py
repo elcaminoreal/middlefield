@@ -1,4 +1,5 @@
 import functools
+import json
 import os
 import tempfile
 import unittest
@@ -42,9 +43,29 @@ class FakeShell(object):
 class FakeBuilder(object):
 
     _fs = attr.ib()
+    _dists = attr.ib(init=False, default=attr.Factory(list))
 
     def set_entry_point(self, ep):
         self.ep = ep
+
+    def add_dist_location(self, dist):
+        self._dists.append(dist)
+
+    def build(self, output):
+        self._fs.putFile(output, json.dumps(self._dists).encode('ascii'))
+
+class InternalTest(unittest.TestCase):
+
+    def test_invalid_file(self):
+        fs = Files()
+        with self.assertRaises(ValueError):
+            fs.putFile('/', b'hello')
+
+    def test_invalid_command(self):
+        shell = FakeShell(Files())
+        xctor = seashore.Executor(shell)
+        with self.assertRaises(NotImplementedError):
+            xctor.command(['do-stuff']).batch()
 
 class APITest(unittest.TestCase):
 
@@ -63,5 +84,15 @@ class APITest(unittest.TestCase):
         executor = seashore.Executor(shell)
         builder = functools.partial(FakeBuilder, fs)
         override = dict(executor=executor, pex_builder=builder)
-        middlefield.COMMANDS.run(['self-build', '--output', '/foo'],
-                                 override_dependencies=override)
+        with tempfile.NamedTemporaryFile() as filep:
+            middlefield.COMMANDS.run(['self-build',
+                                      '--output', filep.name],
+                                     override_dependencies=override)
+            content = filep.read()
+        res = json.loads(content.decode('ascii'))
+        name = os.path.basename(res.pop(0))
+        self.assertEquals(res, [])
+        base, ext = os.path.splitext(name)
+        self.assertEquals(ext, '.whl')
+        dist_name, version = base.split('-')
+        self.assertEquals(dist_name, 'middlefield')

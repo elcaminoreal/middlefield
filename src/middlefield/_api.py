@@ -1,42 +1,61 @@
+"""
+Middlefield's main API
+"""
+
 import contextlib
 import os
 import typing
 import shutil
 import tempfile
 
-import caparg as cap
+from caparg import command, option
 import elcaminoreal
-import middlefield
 from pex import pex_builder
 import seashore
+
+from middlefield import _version
 
 COMMANDS = elcaminoreal.Commands()
 
 @COMMANDS.dependency()
 def executor(_dependencies, _maybe_dependencies):
+    """
+    Return an executor
+    """
     return seashore.Executor(seashore.Shell())
 
 @COMMANDS.dependency(name='pex_builder')
 def get_pex_builder(_dependencies, _maybe_dependencies):
+    """
+    Return a Pex builder
+    """
     return pex_builder.PEXBuilder
 
 @contextlib.contextmanager
 def tmpdir():
+    """
+    Context manager creating a temporary directory
+    """
     ret = tempfile.mkdtemp()
     try:
         yield ret
     finally:
         shutil.rmtree(ret)
 
-@COMMANDS.command(
-    parser=cap.command('',
-        requirements=cap.option(type=typing.List[str], have_default=True),
-        package=cap.option(type=typing.List[str], have_default=True),
-        output=cap.option(type=str, required=True)),
-    dependencies=['executor', 'pex_builder'])
+@COMMANDS.command(parser=command('',
+                                 requirements=option(type=typing.List[str],
+                                                     have_default=True),
+                                 package=option(type=typing.List[str],
+                                                have_default=True),
+                                 output=option(type=str, required=True)),
+                  dependencies=['executor', 'pex_builder'])
 def self_build(args, dependencies):
+    """
+    Build middlefield, together with any plugins, into a Pex file
+    """
     package = list(args['package'])
-    package.append(f'middlefield=={middlefield.__version__}')
+    my_version = _version.__version__.short()
+    package.append('middlefield=={}'.format(my_version))
     requirements = list(args['requirements'])
     output = args['output']
     xctor = dependencies['executor']

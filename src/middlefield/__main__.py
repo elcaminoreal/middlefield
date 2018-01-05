@@ -1,3 +1,7 @@
+"""
+Run command using :code:`middlefield.COMMANDS`
+"""
+
 import sys
 
 import middlefield

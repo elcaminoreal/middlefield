@@ -17,6 +17,7 @@ from middlefield import _version
 
 COMMANDS = elcaminoreal.Commands()
 
+
 @COMMANDS.dependency()
 def executor(_dependencies, _maybe_dependencies):
     """
@@ -24,12 +25,14 @@ def executor(_dependencies, _maybe_dependencies):
     """
     return seashore.Executor(seashore.Shell())
 
+
 @COMMANDS.dependency(name='pex_builder')
 def get_pex_builder(_dependencies, _maybe_dependencies):
     """
     Return a Pex builder
     """
     return pex_builder.PEXBuilder
+
 
 @contextlib.contextmanager
 def tmpdir():
@@ -41,6 +44,7 @@ def tmpdir():
         yield ret
     finally:
         shutil.rmtree(ret)
+
 
 @COMMANDS.command(parser=command('',
                                  requirements=option(type=typing.List[str],
@@ -63,9 +67,9 @@ def self_build(args, dependencies):
     builder.set_entry_point('middlefield')
     with tmpdir() as wheelhouse:
         xctor.pip.wheel(*list(package),
-                        requirements=requirements, wheel_dir=wheelhouse).batch()
+                        requirements=requirements,
+                        wheel_dir=wheelhouse).batch()
         for dist in os.listdir(wheelhouse):
-            print("Adding", dist)
             dist = os.path.join(wheelhouse, dist)
             builder.add_dist_location(dist)
         builder.build(output)

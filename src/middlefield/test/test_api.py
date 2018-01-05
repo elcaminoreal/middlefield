@@ -13,6 +13,7 @@ import seashore
 
 import middlefield
 
+
 @attr.s(frozen=True)
 class Files(object):
 
@@ -30,6 +31,7 @@ class Files(object):
                              fname)
         with open(fname, 'wb') as filep:
             filep.write(content)
+
 
 @attr.s(frozen=True)
 class FakeShell(object):
@@ -77,7 +79,6 @@ class FakeBuilder(object):
         """
         Set the entry point
         """
-        pass
 
     def add_dist_location(self, dist):
         """
@@ -90,6 +91,7 @@ class FakeBuilder(object):
         Pretend to create a Pex file
         """
         self._fs.put_file(output, json.dumps(self._dists).encode('ascii'))
+
 
 class InternalTest(unittest.TestCase):
 
@@ -113,6 +115,7 @@ class InternalTest(unittest.TestCase):
         xctor = seashore.Executor(shell)
         with self.assertRaises(NotImplementedError):
             xctor.command(['do-stuff']).batch()
+
 
 class APITest(unittest.TestCase):
 

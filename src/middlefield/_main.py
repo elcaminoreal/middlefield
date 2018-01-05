@@ -7,11 +7,13 @@ import runpy
 
 import toolz
 
+
 def noop(_dummy):
     """
     Do nothing
     """
     return None
+
 
 # pylint: disable=invalid-name
 entrypoint = toolz.compose(noop,

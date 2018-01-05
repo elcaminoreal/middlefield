@@ -6,6 +6,7 @@ import unittest
 
 from middlefield import _main
 
+
 # pylint: disable=assignment-from-none
 class NoOpTest(unittest.TestCase):
 

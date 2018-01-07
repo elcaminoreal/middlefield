@@ -51,6 +51,7 @@ def tmpdir():
                                                      have_default=True),
                                  package=option(type=typing.List[str],
                                                 have_default=True),
+                                 shebang=option(type=str),
                                  output=option(type=str, required=True)),
                   dependencies=['executor', 'pex_builder'])
 def self_build(args, dependencies):
@@ -65,6 +66,8 @@ def self_build(args, dependencies):
     xctor = dependencies['executor']
     builder = dependencies['pex_builder']()
     builder.set_entry_point('middlefield')
+    if 'shebang' in args:
+        builder.set_shebang(args['shebang'])
     with tmpdir() as wheelhouse:
         xctor.pip.wheel(*list(package),
                         requirements=requirements,

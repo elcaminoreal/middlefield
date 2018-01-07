@@ -74,11 +74,18 @@ class FakeBuilder(object):
 
     _fs = attr.ib()
     _dists = attr.ib(init=False, default=attr.Factory(list))
+    _shebang = '/usr/bin/env python'
 
     def set_entry_point(self, _entry_point):
         """
         Set the entry point
         """
+
+    def set_shebang(self, shebang):
+        """
+        Set the shebang
+        """
+        self._shebang = shebang
 
     def add_dist_location(self, dist):
         """
@@ -90,7 +97,8 @@ class FakeBuilder(object):
         """
         Pretend to create a Pex file
         """
-        self._fs.put_file(output, json.dumps(self._dists).encode('ascii'))
+        summary = dict(shebang=self._shebang, dists=self._dists)
+        self._fs.put_file(output, json.dumps(summary).encode('ascii'))
 
 
 class InternalTest(unittest.TestCase):
@@ -149,10 +157,28 @@ class APITest(unittest.TestCase):
                                       '--output', filep.name],
                                      override_dependencies=override)
             content = filep.read()
-        res = json.loads(content.decode('ascii'))
+        res = json.loads(content.decode('ascii'))['dists']
         name = os.path.basename(res.pop(0))
         self.assertEquals(res, [])
         base, ext = os.path.splitext(name)
         self.assertEquals(ext, '.whl')
         dist_name, dummy_version = base.split('-')
         self.assertEquals(dist_name, 'middlefield')
+
+    def test_self_build_shebang(self):
+        """
+        Running "mf self-build --shebang" sets the shebang line
+        """
+        my_files = Files()
+        shell = FakeShell(my_files)
+        executor = seashore.Executor(shell)
+        builder = functools.partial(FakeBuilder, my_files)
+        override = dict(executor=executor, pex_builder=builder)
+        with tempfile.NamedTemporaryFile() as filep:
+            middlefield.COMMANDS.run(['self-build',
+                                      '--shebang', '/usr/bin/python',
+                                      '--output', filep.name],
+                                     override_dependencies=override)
+            content = filep.read()
+        res = json.loads(content.decode('ascii'))['shebang']
+        self.assertEquals(res, '/usr/bin/python')

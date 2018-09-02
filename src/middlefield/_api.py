@@ -1,6 +1,7 @@
 """
 Middlefield's main API
 """
+from __future__ import print_function
 
 import contextlib
 import os
@@ -53,7 +54,8 @@ def tmpdir():
                                                 have_default=True),
                                  shebang=option(type=str),
                                  output=option(type=str, required=True)),
-                  dependencies=['executor', 'pex_builder'])
+                  dependencies=['executor', 'pex_builder'],
+                  aliases=['self build'])
 def self_build(args, dependencies):
     """
     Build middlefield, together with any plugins, into a Pex file
@@ -76,3 +78,14 @@ def self_build(args, dependencies):
             dist = os.path.join(wheelhouse, dist)
             builder.add_dist_location(dist)
         builder.build(output)
+
+@COMMANDS.command(parser=command(''),
+                  regular=True,
+                  name='self show')
+def show_commands(print=print):
+    commands = COMMANDS.get_commands()
+    for name, command in commands.items():
+        function = command.original
+        module = function.__module__
+        name = function.__name__
+        print("{}: {}.{}".format(name, module, name))

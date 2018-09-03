@@ -79,6 +79,7 @@ def self_build(args, dependencies):
             builder.add_dist_location(dist)
         builder.build(output)
 
+
 @COMMANDS.command(parser=command(''),
                   regular=True,
                   name='self show')

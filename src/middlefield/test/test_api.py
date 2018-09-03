@@ -189,10 +189,12 @@ class APITest(unittest.TestCase):
         Running "mf self show" shows all commands
         """
         things = []
-        my_print = lambda *x: things.append(x)
+
+        def _my_print(*x):
+            things.append(x)
         res = middlefield.COMMANDS.get_commands()
         self_show = res['self show']
-        self_show.original(my_print=my_print)
+        self_show.original(my_print=_my_print)
         result = '\n'.join(' '.join(x) for x in things) + '\n'
         lines = result.splitlines()
         parsed = {}

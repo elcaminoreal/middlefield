@@ -192,7 +192,7 @@ class APITest(unittest.TestCase):
         my_print = lambda *x: things.append(x)
         res = middlefield.COMMANDS.get_commands()
         self_show = res['self show']
-        self_show.original(print=my_print)
+        self_show.original(my_print=my_print)
         result = '\n'.join(' '.join(x) for x in things) + '\n'
         lines = result.splitlines()
         parsed = {}

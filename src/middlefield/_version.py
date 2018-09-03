@@ -7,5 +7,5 @@ Provides middlefield version information.
 
 from incremental import Version
 
-__version__ = Version('middlefield', 18, 6, 0)
+__version__ = Version('middlefield', 18, 9, 0)
 __all__ = ["__version__"]

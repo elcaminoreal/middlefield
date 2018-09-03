@@ -1,6 +1,7 @@
 """
 Test middlefield
 """
+from __future__ import print_function
 
 import functools
 import json
@@ -182,3 +183,26 @@ class APITest(unittest.TestCase):
             content = filep.read()
         res = json.loads(content.decode('ascii'))['shebang']
         self.assertEquals(res, '/usr/bin/python')
+
+    def test_show_command(self):
+        """
+        Running "mf self show" shows all commands
+        """
+        things = []
+
+        def _my_print(*x):
+            things.append(x)
+        res = middlefield.COMMANDS.get_commands()
+        self_show = res['self show']
+        self_show.original(my_print=_my_print)
+        result = '\n'.join(' '.join(x) for x in things) + '\n'
+        lines = result.splitlines()
+        parsed = {}
+        for line in lines:
+            self.assertIn(': ', line)
+            command, function = line.split(': ')
+            parsed[command] = function
+        self.assertIn('self show', parsed)
+        module, function = parsed['self show'].rsplit('.', 1)
+        self.assertEquals(function, self_show.original.__name__)
+        self.assertEquals(module, self_show.original.__module__)

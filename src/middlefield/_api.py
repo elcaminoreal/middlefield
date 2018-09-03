@@ -87,5 +87,5 @@ def show_commands(print=print):
     for name, command in commands.items():
         function = command.original
         module = function.__module__
-        name = function.__name__
-        print("{}: {}.{}".format(name, module, name))
+        func_name = function.__name__
+        print("{}: {}.{}".format(name, module, func_name))

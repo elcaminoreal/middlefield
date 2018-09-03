@@ -87,8 +87,8 @@ def show_commands(my_print=print):
     Print commmands, including where they are defined.
     """
     commands = COMMANDS.get_commands()
-    for name, command in commands.items():
-        function = command.original
+    for name, wrapper in commands.items():
+        function = wrapper.original
         module = function.__module__
         func_name = function.__name__
         my_print("{}: {}.{}".format(name, module, func_name))
